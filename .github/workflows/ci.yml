@@ -10,12 +10,24 @@ on:
 jobs:
   build-windows:
     runs-on: windows-latest
-    
     steps:
+    - name: Checkout trove-classifiers
+      uses: actions/checkout@v4
+      with:
+        repository: pypa/trove-classifiers
+        ref: 2026.1.14.14
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.10'
+        python-version: '3.12'
+
+    - name: Cache Visual Studio Build Tools
+      id: cache-vs
+      uses: actions/cache@v3
+      with:
+        path: C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools
+        key: vs2019-buildtools-v1
         
     - name: Setup MSBuild (VS 2019)
       uses: microsoft/setup-msbuild@v1.3
@@ -23,13 +35,9 @@ jobs:
         vs-version: '16.11'
         
     - name: Install Visual Studio 2019 Build Tools
+      if: steps.cache-vs.outputs.cache-hit != 'true'
       run: |
         choco install visualstudio2019buildtools --package-parameters "--add Microsoft.VisualStudio.Workload.VCTools --add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 --add Microsoft.VisualStudio.Component.Windows10SDK.19041"
-        
-    - name: Clone trova-classifiers repository
-      run: |
-        git clone https://github.com/microsoft/trova-classifiers.git
-        cd trova-classifiers
         
     - name: Install build dependencies
       run: |
