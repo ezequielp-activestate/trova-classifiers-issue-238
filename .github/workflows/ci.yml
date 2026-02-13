@@ -1,0 +1,63 @@
+name: Build trova-classifiers with VS 2019
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+        
+    - name: Setup MSBuild (VS 2019)
+      uses: microsoft/setup-msbuild@v1.3
+      with:
+        vs-version: '16.11'
+        
+    - name: Install Visual Studio 2019 Build Tools
+      run: |
+        choco install visualstudio2019buildtools --package-parameters "--add Microsoft.VisualStudio.Workload.VCTools --add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 --add Microsoft.VisualStudio.Component.Windows10SDK.19041"
+        
+    - name: Clone trova-classifiers repository
+      run: |
+        git clone https://github.com/microsoft/trova-classifiers.git
+        cd trova-classifiers
+        
+    - name: Install build dependencies
+      run: |
+        cd trova-classifiers
+        python -m pip install --upgrade pip
+        python -m pip install wheel setuptools build
+        if (Test-Path requirements.txt) {
+          python -m pip install -r requirements.txt
+        }
+      shell: powershell
+      
+    - name: Build from source with VS 2019
+      run: |
+        cd trova-classifiers
+        python -m build
+      shell: powershell
+      env:
+        DISTUTILS_USE_SDK: 1
+        
+    - name: Test installation
+      run: |
+        cd trova-classifiers
+        python -m pip install dist/*.whl
+        python -c "import trova_classifiers; print('Build successful with VS 2019')"
+      shell: powershell
+      
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: trova-classifiers-vs2019-build
+        path: trova-classifiers/dist/
