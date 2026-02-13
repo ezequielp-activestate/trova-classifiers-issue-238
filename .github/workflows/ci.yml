@@ -50,7 +50,6 @@ jobs:
       
     - name: Build from source with VS 2019
       run: |
-        cd trova-classifiers
         python -m build
       shell: powershell
       env:
@@ -58,7 +57,6 @@ jobs:
         
     - name: Test installation
       run: |
-        cd trova-classifiers
         python -m pip install dist/*.whl
         python -c "import trova_classifiers; print('Build successful with VS 2019')"
       shell: powershell
