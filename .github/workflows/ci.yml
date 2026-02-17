@@ -27,5 +27,5 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install wheel setuptools==82.0.0 build
         python -m build --wheel
-        python -m pip install dist/*.whl
+        python -m pip install trove_classifiers-2026.2.17.16-py3-none-any.whl
       shell: powershell
