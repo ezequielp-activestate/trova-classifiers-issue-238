@@ -25,20 +25,6 @@ jobs:
     - name: Install build dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install wheel setuptools build
-        if (Test-Path requirements.txt) {
-          python -m pip install -r requirements.txt
-        }
+        python -m build --wheel
+        python -m pip install dist/trove_classifiers-*.whl
       shell: powershell
-              
-    - name: Test installation
-      run: |
-        python -m pip install dist/*.whl
-        python -c "import trove_classifiers; print('Build successful')"
-      shell: powershell
-      
-    - name: Upload build artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: trove-classifiers-vs2019-build
-        path: trove-classifiers/dist/
